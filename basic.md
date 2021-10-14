@@ -1,7 +1,9 @@
-1. const引用是什么在栈什么在堆
-2.箭头函数prototype
-3.跨域 Cross-Origin Resource Sharing
-origin:   Protocol://Domain:Port
+- [x] 1. const引用是什么在栈什么在堆
+- [ ] 2. 箭头函数prototype
+- [ ] 3. 跨域 Cross-Origin Resource Sharing
+   origin:   Protocol://Domain:Port
+
+
 
 简单请求不会触发CORS预检: get, head, post.   
 Content-Type
