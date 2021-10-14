@@ -193,7 +193,7 @@ const fileB = blob.slice(start, end, MIMEcontentType) // 只读, 按索引切割
 * **Session 和 Token 并不矛盾**，作为身份认证 Token 安全性比 Session 好，因为每一个请求都有签名还能防止监听以及重放攻击，而 Session 就必须依赖链路层来保障通讯安全了。如果你需要实现有状态的会话，仍然可以增加 Session 来在服务器端保存一些状态。
 * Session 认证只是简单的把 User 信息存储到 Session 里，因为 SessionID 的不可预测性，暂且认为是安全的。而 Token ，如果指的是 OAuth Token 或类似的机制的话，提供的是 认证 和 授权 ，认证是针对用户，授权是针对 App 。其目的是让某 App 有权利访问某用户的信息。这里的 Token 是唯一的。不可以转移到其它 App上，也不可以转到其它用户上。Session 只提供一种简单的认证，即只要有此 SessionID ，即认为有此 User 的全部权利。是需要严格保密的，这个数据应该只保存在站方，不应该共享给其它网站或者第三方 App。所以简单来说：如果你的用户数据可能需要和第三方共享，或者允许第三方调用 API 接口，用 Token 。
 
-#### 10. **jsonp  屏蔽c小网站  request header里的refer?** origin? host? ✔️
+#### 10. **jsonp  屏蔽c网站  request header里的refer?** origin? host? ✔️
 
 * host 请求头表示请求服务器的域名/IP地址和端口号。 
   域名 + 端口号.
@@ -312,13 +312,13 @@ UNSENT, OPENED (open已调用), HEADERS_RECEIVED (send已调用), LOADING (下�
 
 #### 17. **SSR注水脱水** ❌
 
-#### 18. **项目经经历吹点小作文** ❌
+####
 
-#### 19. **TCP 和 UDP 的区别** ❌
+#### 18. **TCP 和 UDP 的区别** ❌
 
-#### 20. **fiber的作用是什么** ❌
+#### 19. **fiber的作用是什么** ❌
 
-#### 21. **react Diffing算法** ✔️
+#### 20. **react Diffing算法** ✔️
 
 render函数执行会产生react元素树，下次render会产生另外一个元素树，react需要对比两个元素树差别，来更新同步真实DOM，使用最简单的广度优先遍历，时间复杂度达到O(n^3)
 react使用O(n)启发式算法，提出以下两个假设：
@@ -333,12 +333,17 @@ react使用O(n)启发式算法，提出以下两个假设：
 3. 需要修改属性的节点，更新样式或者其他属性
 4. 不需要的节点，需要删除
 
-#### 22. **react的优化方法** ❌
+#### 21. **react的优化方法** ❌
 
-#### 23. **性能优化  react和webpack** ❌
-#### 24. **plugin和loader** ❌
-#### 25. **迁移ts遇到的问题** ❌
-#### 26. **打开url发生了什么** ❌
-#### 27. **eventBus 观察者模式** ❌
+#### 22. **性能优化  react和webpack** ❌
+#### 23. **plugin和loader** ❌
+#### 24. **迁移ts遇到的问题** ❌
+#### 25. **打开url发生了什么** ❌
+#### 26. **eventBus 观察者模式** ❌
+
+#### 27. **项目经经历吹点小作文** ❌
+
+#### 28. **自我介绍** ❌
+
 #### 以上在今天完成 ❌
 
