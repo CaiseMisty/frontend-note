@@ -1,6 +1,10 @@
-- [x] **const引用是什么在栈什么在堆**
-- [x] **箭头函数prototype**
-- [x] **跨域 Cross-Origin Resource Sharing**
+#### 1.  **const引用是什么在栈什么在堆** ✔️
+
+
+
+#### 2.  **箭头函数prototype** ✔️
+
+#### 3.  **跨域 Cross-Origin Resource Sharing** ✔️
 
 origin:   Protocol://Domain:Port
 
@@ -77,10 +81,83 @@ app.listen(3000);
 
 nginx简易配置:https://juejin.cn/post/6844904094973296654
 
-- [ ] **1px**
-- [x] **cookie用来存什么(session id)   storage存什么**
+
+
+#### 4.  **1px** ❌
+
+  
+
+#### 5.  **offset, client, scroll  的区别** ✔️
+
+| 属性   | 值                           |
+| :----- | :--------------------------- |
+| client | top/left/width/height        |
+| offset | top/left/width/height/parent |
+| scroll | top/left/width/height        |
+
+**clientWidth**: it's the inner width of an element in pixels. It includes padding but excludes borders, margins, and vertical scrollbars (if present).
+
+**clientTop**: The width of the top border of an element in pixels.
+
+
+
+**offsetWidth**: element's CSS width, **including any borders, padding, and vertical scrollbars in pixels**.
+
+**offsetTop**: the distance of the outer border of the current element **relative to** the inner border of the top of the **[`offsetParent`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/offsetParent) node**.
+
+
+
+**scrollWidth**: the width of an element's content, including content not visible on the screen due to overflow.
+
+**scrollTop**: the number of pixels that the [`element`](https://developer.mozilla.org/en-US/docs/Web/API/Element)'s content has been scrolled upwards. When an element's content does not generate a vertical scrollbar, then its `scrollTop` value is `0`.
+
+
+
+#### 6.  **blob, file, arrayBuffer的区别** ✔️
+
+**Blob**: binary  large  object.
+
+blob 是对 arrayBuffer 的封装, arrayBuffer可对二进制数据的细节进行操作.
+
+FileReader 可以将 Blob 读取为不同的格式.
+
+```js
+const blob = new Blob( arrayBuffer, options );
+
+blob.size; // Blob对象中包含的数据字节数
+blob.type; // 包含数据的MIME类型。例如若为图片，此字段就类似为’image/jpeg‘.如果类型未知，则该值为空字符串
+
+const fileB = blob.slice(start, end, MIMEcontentType) // 只读, 按索引切割出一个新的指定MIME类型文件
+```
+
+**ArrayBuffer**: 更底层的二进制数据容器. 内存上一段连续的二进制数据.
+
+**File**: 继承自 Blob 对文件对象. 也为二进制数据. 
+
+`<input type="file">`选取到的 FileList 对象, 或者拖拽的 DataTransfer 对象.
+
+新增属性:
+
+`File.name` 只读, 为当前 File 对象所引用文件的名称。
+
+**FormData**: 表单控件中附加的 `FormData` 对象, 包含一组 key: value,  其中的值可以使用 Blob / File 对象. 这个 `FormData` 可以快速的用于 `XHR.send(formdata)`, 此时发送请求的 `Content-Type`为 multipart/form-data.
+
+
+
+#### 7. **nodeJs如何连接数据库，并且操作数据的** ❌
+
+
+
+#### 8.  **getBoundingRect()** ✔️
+
+![img](basic.assets/element-box-diagram.png)
+
+
+
+#### 9.  **cookie用来存什么(session id)   storage存什么** ✔️
 
 **Session:**
+
 * **session 是基于 cookie 实现的**，session 存储在服务器端,格式自定义，sessionId 会被存储到客户端的cookie 中, cookie只能是字符串
 * session 是另一种记录服务器和客户端会话状态的机制
 * 需要查询数据库, 如果加快, 多半是用redis存在内存中
@@ -116,7 +193,7 @@ nginx简易配置:https://juejin.cn/post/6844904094973296654
 * **Session 和 Token 并不矛盾**，作为身份认证 Token 安全性比 Session 好，因为每一个请求都有签名还能防止监听以及重放攻击，而 Session 就必须依赖链路层来保障通讯安全了。如果你需要实现有状态的会话，仍然可以增加 Session 来在服务器端保存一些状态。
 * Session 认证只是简单的把 User 信息存储到 Session 里，因为 SessionID 的不可预测性，暂且认为是安全的。而 Token ，如果指的是 OAuth Token 或类似的机制的话，提供的是 认证 和 授权 ，认证是针对用户，授权是针对 App 。其目的是让某 App 有权利访问某用户的信息。这里的 Token 是唯一的。不可以转移到其它 App上，也不可以转到其它用户上。Session 只提供一种简单的认证，即只要有此 SessionID ，即认为有此 User 的全部权利。是需要严格保密的，这个数据应该只保存在站方，不应该共享给其它网站或者第三方 App。所以简单来说：如果你的用户数据可能需要和第三方共享，或者允许第三方调用 API 接口，用 Token 。
 
-- [x] **jsonp  屏蔽c小网站  request header里的refer?** origin? host?
+#### 10. **jsonp  屏蔽c小网站  request header里的refer?** origin? host? ✔️
 
 * host 请求头表示请求服务器的域名/IP地址和端口号。 
   域名 + 端口号.
@@ -135,23 +212,95 @@ nginx简易配置:https://juejin.cn/post/6844904094973296654
 * origin: 跨域时会带上, 表示请求源.
 协议+域名+端口号
 
-- [x] **不写key值  bug?**
+#### 11. **不写key值  bug?** ✔️
 bug似乎没有. 写key值对于react只是当前元素无需删除, 只需要就地复用, 有助于提高diff速度.
 * key相同，若组件属性有所变化，则react只更新组件对应的属性；没有变化则不更新。
 * key值不同，则react先销毁该组件(有状态组件的componentWillUnmount会执行)，然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）
 
-- [x] **打包优化用的插件   dll  cache  thread**
+#### 12. **打包优化用的插件   dll  cache  thread** ✔️
 thread-loader将耗时的单独一个线程.
 cache: { type: 'filesystem' }
 dllPlugin 已经无了, webpack5的持久换缓存比dll更优. create-react-app和vue-cli也已经去除了.
 cache-loader 也不需要了
 terser-plugin官方集成
 
-- [ ] **深拷贝**
+#### 13. **深拷贝 (考虑循环引用, 不考虑函数) **✔️
 
-- [ ] **TLS**
+要点:  
 
-- [x] **XMLHttpRequest**
+1. 判断是否为对象或函数. 不是对象则直接返回. 无需区别判断数组.
+2. 判断constructor, 如果为 `Boolean`, `Date`, `String`, `Regexp`, `Number`类型, `return new Constructor(obj)`. (要注意 `Boolean` 要为 `+obj`, 否则都为 true )
+3. `cloneObj = new Constructor()`, 随后, 对`Object.getOwnPropertyNames(obj)
+       .concat(Object.getOwnPropertySymbols(obj))` 进行遍历, 递归调用 `deepClone`.
+
+```js
+const isObject = obj => obj !== null && (typeof obj === 'object' || typeof obj === 'function');
+const isFunction = obj => typeof obj === 'function'
+function deepClone(obj, hash = new WeakMap()) {
+  if (hash.get(obj)) {
+    return hash.get(obj);
+  }
+  if (!isObject(obj) || isFunction(obj)) {
+    return obj;
+  }
+
+  const Constructor = obj.constructor;
+
+  switch (Constructor) {
+    case Boolean:
+      return new Constructor(+obj);
+    case Date:
+    case Number:
+    case String:
+    case RegExp:
+      return new Constructor(obj);
+  }
+  let cloneObj = new Constructor();
+  hash.set(obj, cloneObj);
+
+  Object.getOwnPropertyNames(obj)
+    .concat(Object.getOwnPropertySymbols(obj))
+    .forEach(k => {
+        cloneObj[k] = deepClone(obj[k], hash);
+    });
+  return cloneObj;
+}
+```
+
+测试: 
+```js
+const symbolName = Symbol();
+const obj = {
+  objNumber: new Number(1),
+  number: 1,
+  objString: new String('ss'),
+  string: 'stirng',
+  objRegexp: new RegExp('\\w'),
+  regexp: /w+/g,
+  date: new Date(),
+  function: function () { },
+  array: [{ a: 1 }, 2],
+  [symbolName]: 111
+}
+obj.d = obj;
+function testClone() {
+  const o = deepClone(obj)
+  console.log(o.objNumber === obj.objNumber);
+  console.log(o.number === obj.number);
+  console.log(o.objString === obj.objString);
+  console.log(o.string === obj.string);
+  console.log(o.objRegexp === obj.objRegexp);
+  console.log(o.regexp === obj.regexp);
+  console.log(o.date === obj.date);
+  console.log(o.function === obj.function);
+  console.log(o.array[0] === obj.array[0]);
+  console.log(o[symbolName] === obj[symbolName]);
+}
+```
+
+#### 14. **TLS** ❌
+
+#### 15. **XMLHttpRequest** ✔️
 open方法参数: ( METHOD, url, isAsync = true );
 `send( requestBody )`
 `abort() `取消
@@ -159,17 +308,17 @@ open方法参数: ( METHOD, url, isAsync = true );
 onreadystatechange, 五个值, XMLHttpRequest.固定值0-4分别是:   
 UNSENT, OPENED (open已调用), HEADERS_RECEIVED (send已调用), LOADING (下载中), DONE (下载完成)
 
-- [ ] **Server Component**
+#### 16. **Server Component** ❌
 
-- [ ] **SSR注水脱水**
+#### 17. **SSR注水脱水** ❌
 
-- [ ] **项目经经历吹点小作文**
+#### 18. **项目经经历吹点小作文** ❌
 
-- [ ] **TCP 和 UDP 的区别**
+#### 19. **TCP 和 UDP 的区别** ❌
 
-- [ ] **fiber的作用是什么**
+#### 20. **fiber的作用是什么** ❌
 
-- [ ] **react Diffing算法**
+#### 21. **react Diffing算法** ✔️
 
 render函数执行会产生react元素树，下次render会产生另外一个元素树，react需要对比两个元素树差别，来更新同步真实DOM，使用最简单的广度优先遍历，时间复杂度达到O(n^3)
 react使用O(n)启发式算法，提出以下两个假设：
@@ -184,12 +333,12 @@ react使用O(n)启发式算法，提出以下两个假设：
 3. 需要修改属性的节点，更新样式或者其他属性
 4. 不需要的节点，需要删除
 
-- [ ] **react的优化方法**
+#### 22. **react的优化方法** ❌
 
-- [ ] **性能优化  react和webpack**
-- [ ] **plugin和loader**
-- [ ] **迁移ts遇到的问题**
-- [ ] **打开url发生了什么**
-- [ ] **eventBus 观察者模式**
-- [ ]  以上在今天完成
+#### 23. **性能优化  react和webpack** ❌
+#### 24. **plugin和loader** ❌
+#### 25. **迁移ts遇到的问题** ❌
+#### 26. **打开url发生了什么** ❌
+#### 27. **eventBus 观察者模式** ❌
+#### 以上在今天完成 ❌
 
