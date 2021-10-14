@@ -1,6 +1,6 @@
-- [x] #### const引用是什么在栈什么在堆
-- [x] #### 箭头函数prototype
-- [x] #### 跨域 Cross-Origin Resource Sharing
+- [x] **const引用是什么在栈什么在堆**
+- [x] **箭头函数prototype**
+- [x] **跨域 Cross-Origin Resource Sharing**
 
 origin:   Protocol://Domain:Port
 
@@ -77,8 +77,8 @@ app.listen(3000);
 
 nginx简易配置:https://juejin.cn/post/6844904094973296654
 
-- [ ] #### 1px
-- [x] #### cookie用来存什么(session id)   storage存什么
+- [ ] **1px**
+- [x] **cookie用来存什么(session id)   storage存什么**
 
 **Session:**
 * **session 是基于 cookie 实现的**，session 存储在服务器端,格式自定义，sessionId 会被存储到客户端的cookie 中, cookie只能是字符串
@@ -116,7 +116,7 @@ nginx简易配置:https://juejin.cn/post/6844904094973296654
 * **Session 和 Token 并不矛盾**，作为身份认证 Token 安全性比 Session 好，因为每一个请求都有签名还能防止监听以及重放攻击，而 Session 就必须依赖链路层来保障通讯安全了。如果你需要实现有状态的会话，仍然可以增加 Session 来在服务器端保存一些状态。
 * Session 认证只是简单的把 User 信息存储到 Session 里，因为 SessionID 的不可预测性，暂且认为是安全的。而 Token ，如果指的是 OAuth Token 或类似的机制的话，提供的是 认证 和 授权 ，认证是针对用户，授权是针对 App 。其目的是让某 App 有权利访问某用户的信息。这里的 Token 是唯一的。不可以转移到其它 App上，也不可以转到其它用户上。Session 只提供一种简单的认证，即只要有此 SessionID ，即认为有此 User 的全部权利。是需要严格保密的，这个数据应该只保存在站方，不应该共享给其它网站或者第三方 App。所以简单来说：如果你的用户数据可能需要和第三方共享，或者允许第三方调用 API 接口，用 Token 。
 
-- [x] #### jsonp  屏蔽c小网站  request header里的refer? origin? host?
+- [x] **jsonp  屏蔽c小网站  request header里的refer?** origin? host?
 
 * host 请求头表示请求服务器的域名/IP地址和端口号。 
   域名 + 端口号.
@@ -135,23 +135,23 @@ nginx简易配置:https://juejin.cn/post/6844904094973296654
 * origin: 跨域时会带上, 表示请求源.
 协议+域名+端口号
 
-- [x] #### 不写key值  bug?
+- [x] **不写key值  bug?**
 bug似乎没有. 写key值对于react只是当前元素无需删除, 只需要就地复用, 有助于提高diff速度.
 * key相同，若组件属性有所变化，则react只更新组件对应的属性；没有变化则不更新。
 * key值不同，则react先销毁该组件(有状态组件的componentWillUnmount会执行)，然后重新创建该组件（有状态组件的constructor和componentWillUnmount都会执行）
 
-- [x] #### 打包优化用的插件   dll  cache  thread
+- [x] **打包优化用的插件   dll  cache  thread**
 thread-loader将耗时的单独一个线程.
 cache: { type: 'filesystem' }
 dllPlugin 已经无了, webpack5的持久换缓存比dll更优. create-react-app和vue-cli也已经去除了.
 cache-loader 也不需要了
 terser-plugin官方集成
 
-- [ ] #### 深拷贝
+- [ ] **深拷贝**
 
-- [ ] #### TLS
+- [ ] **TLS**
 
-- [x] #### XMLHttpRequest
+- [x] **XMLHttpRequest**
 open方法参数: ( METHOD, url, isAsync = true );
 `send( requestBody )`
 `abort() `取消
@@ -159,17 +159,17 @@ open方法参数: ( METHOD, url, isAsync = true );
 onreadystatechange, 五个值, XMLHttpRequest.固定值0-4分别是:   
 UNSENT, OPENED (open已调用), HEADERS_RECEIVED (send已调用), LOADING (下载中), DONE (下载完成)
 
-- [ ] #### Server Component
+- [ ] **Server Component**
 
-- [ ] #### SSR注水脱水
+- [ ] **SSR注水脱水**
 
-- [ ] #### 项目经经历吹点小作文
+- [ ] **项目经经历吹点小作文**
 
-- [ ] #### TCP 和 UDP 的区别
+- [ ] **TCP 和 UDP 的区别**
 
-- [ ] #### fiber的作用是什么
+- [ ] **fiber的作用是什么**
 
-- [ ] #### react Diffing算法
+- [ ] **react Diffing算法**
 
 render函数执行会产生react元素树，下次render会产生另外一个元素树，react需要对比两个元素树差别，来更新同步真实DOM，使用最简单的广度优先遍历，时间复杂度达到O(n^3)
 react使用O(n)启发式算法，提出以下两个假设：
@@ -184,12 +184,12 @@ react使用O(n)启发式算法，提出以下两个假设：
 3. 需要修改属性的节点，更新样式或者其他属性
 4. 不需要的节点，需要删除
 
-- [ ] #### react的优化方法
+- [ ] **react的优化方法**
 
-- [ ] #### 性能优化  react和webpack
-- [ ] #### plugin和loader
-- [ ] #### 迁移ts遇到的问题
-- [ ] #### 打开url发生了什么
-- [ ] #### eventBus 观察者模式
+- [ ] **性能优化  react和webpack**
+- [ ] **plugin和loader**
+- [ ] **迁移ts遇到的问题**
+- [ ] **打开url发生了什么**
+- [ ] **eventBus 观察者模式**
 - [ ]  以上在今天完成
 
