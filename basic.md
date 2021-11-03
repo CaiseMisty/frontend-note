@@ -1,3 +1,5 @@
+[toc]
+
 #### 1.  **const引用是什么在栈什么在堆** ✔️
 
 
@@ -395,13 +397,187 @@ function testClone() {
 }
 ```
 
-#### 14. **TLS** ❌
+#### 14. **TLS** ✔️
+
+![HTTP和HTTPS的关系](basic.assets/bVbClUj.png)
+
+**TLS握手中发生了什么**
+
+- 商定双方通信所使用的的 TLS 版本 (例如 TLS1.0, 1.2, 1.3等等)；
+- 确定双方所要使用的密码组合；
+- 客户端通过服务器的公钥和数字证书 (上篇文章已有介绍)上的数字签名验证服务端的身份；
+- 生成会话密钥，该密钥将用于握手结束后的对称加密。
+
+**握手流程**
+
+![握手流程](basic.assets/view.png)
+
+1. **"client hello"消息：**客户端通过发送"client hello"消息向服务器发起握手请求，该消息包含了客户端所支持的 TLS 版本和密码组合以供服务器进行选择，还有一个"client random"随机字符串。
+2. **"server hello"消息：**服务器发送"server hello"消息对客户端进行回应，该消息包含了数字证书，服务器选择的密码组合和"server random"随机字符串。
+3. **验证：**客户端对服务器发来的证书进行验证，确保对方的合法身份，验证过程可以细化为以下几个步骤：
+   1. 检查数字签名
+   2. 验证证书链 (这个概念下面会进行说明)
+   3. 检查证书的有效期
+   4. 检查证书的撤回状态 (撤回代表证书已失效)
+4. **"premaster secret"字符串：**客户端向服务器发送另一个随机字符串"premaster secret (预主密钥)"，这个字符串是经过服务器的公钥加密过的，只有对应的私钥才能解密。
+5. **使用私钥：**服务器使用私钥解密"premaster secret"。
+6. **生成共享密钥**：客户端和服务器均使用 client random，server random 和 premaster secret，并通过相同的算法生成相同的共享密钥 **KEY**。
+7. **客户端就绪：**客户端发送经过共享密钥 **KEY**加密过的"finished"信号。
+8. **服务器就绪：**服务器发送经过共享密钥 **KEY**加密过的"finished"信号。
+9. **达成安全通信：**握手完成，双方使用对称加密进行安全通信。
+
+**重要概念**
+
+1. **数字证书 (digital certificate)：**在非对称加密通信过程中，服务器需要将公钥发送给客户端，在这一过程中，公钥很可能会被第三方拦截并替换，然后这个第三方就可以冒充服务器与客户端进行通信，这就是传说中的“中间人攻击”(man in the middle attack)。解决此问题的方法是通过受信任的第三方交换公钥，具体做法就是服务器不直接向客户端发送公钥，而是要求受信任的第三方，也就是证书认证机构 (Certificate Authority, 简称 CA)将公钥合并到数字证书中，然后服务器会把公钥连同证书一起发送给客户端，私钥则由服务器自己保存以确保安全。数字证书一般包含以下内容：
+
+   1. 证书所有者的公钥
+
+   2. 证书所有者的专有名称
+
+   3. 证书颁发机构的专有名称
+
+   4. 证书的有效起始日期
+
+   5. 证书的过期日期
+
+   6. 证书数据格式的版本号
+
+   7. 序列号，这是证书颁发机构为该证书分配的唯一标识符
+
+      ... ...
+
+2. **数字签名 (digital signature)：**这个概念很好理解，其实跟人的手写签名类似，是为了确保数据发送者的合法身份，也可以确保数据内容未遭到篡改，保证数据完整性。与手写签名不同的是，数字签名会随着文本数据的变化而变化。具体到数字证书的应用场景，数字签名的生成和验证流程如下：
+
+   1. 服务器对证书内容进行信息摘要计算 (常用算法有 SHA-256等)，得到摘要信息，再用私钥把摘要信息加密，就得到了数字签名
+   2. 服务器把数字证书连同数字签名一起发送给客户端
+   3. 客户端用公钥解密数字签名，得到摘要信息
+   4. 客户端用相同的信息摘要算法重新计算证书摘要信息，然后对这两个摘要信息进行比对，如果相同，则说明证书未被篡改，否则证书验证失败
+
+3. **证书链 (certificate chain)：**证书链，也称为证书路径，是用于认证实体合法身份的证书列表，具体到 HTTPS 通信中，就是为了验证服务器的合法身份。之所以使用证书链，是为了保证根证书 (root CA certificate)的安全，中间层可以看做根证书的代理，起到了缓冲的作用，如下图所示，这里还以 B 站证书为例：
+
+![证书链](basic.assets/bVbCMsN.png)
+
+证书链从根证书开始，并且证书链中的每一级证书所标识的实体都要为其下一级证书签名，而根证书自身则由证书颁发机构签名。客户端在验证证书链时，必须对链中所有证书的数字签名进行验证，直到达到根证书为止。
+
+4.**密码规范和密码组合 (CipherSpecs 和 CipherSuites)：**通信双方在安全连接中所使用的算法必须符合密码安全协议的规定，CipherSpecs 和 CipherSuites 正好定义了合法的密码算法组合。CipherSpecs 用于认证加密算法和信息摘要算法的组合，通信双方必须同意这个密码规范才能进行通信。而 CipherSuites 则定义了 SSL / TLS 安全连接中所使用的加密算法的组合，该组合包含三种不同的算法：
+
+1. 握手期间所使用的的密钥交换和认证算法 (最常用的是 RSA 算法)
+2. 加密算法 (用于握手完成后的对称加密，常用的有 AES、3DES等)
+3. 信息摘要算法 (常用的有 SHA-256、SHA-1 和 MD5 等)
 
 
 
-#### TCP的三次握手四次挥手 
+#### 15. TCP的三次握手四次挥手 ✔️
 
 initial sequence number ,window size, 为什么是3次和4次等等)
+
+```sequence
+Title: TCP握手
+
+Note left of 客户端: CLOSED
+Note right of 服务端: LISTEN
+Note left of 客户端: 发送 Syn 请求建立连接,\ninitial Seq num x
+
+
+客户端 -> 服务端: Syn=1, Seq=x 
+Note left of 客户端:SYN SENT
+Note right of 服务端:SYN RCVD
+Note right of 服务端: choose init Seq y\n发送 Syn+ACK 报文(Syn=1),\nACK=x+1表示确认收到
+服务端 -> 客户端: Syn=1, ACK=1,ack=x+1, Seq=y
+Note left of 客户端:ESTAB
+Note left of 客户端: 收到ACK=x+1表示服务已上线,\n发送ack以响应Syn,\n这段可能携带传给客户端的数据,\n如果带数据则传seq
+
+客户端 -> 服务端: ACK=1, ack=y+1,(seq=x+1)
+Note right of 服务端: ESTAB
+Note right of 服务端: 收到ACK=y+1表示客户端已上线
+
+```
+
+
+
+
+
+**四次挥手**
+
+> 双方ESTABLISHED
+>
+> 1. 浏览器: 请求发送完, 准备关闭,不发送,可接受, FIN=1, seq=x,FIN_WAIT-1
+>
+> 2. 服务器: 请求接收完, 准备关闭,仍然可能发送, ACK=1, ack=x+1, CLOSE_WAIT, FIN_WAIT_2
+>
+> 3. 服务器: 响应发送完, 告知准备关闭,等待最后ack, FIN=1, ack=x+1, seq=z, LAST_ACK
+>
+> 4. 浏览器: 响应接受完, 等2MaxiumSegmentLifetime关闭, ACK=1, ack=z+1, TIME_WAIT
+>
+>    等待2MSL如果没收到ACK, 双方CLOSED
+
+![四次挥手](basic.assets/v2-629f51f6f535ebd7683f944707b21d1e_720w.jpg)
+
+##### 为什么要三次握手?
+
+为了确保双方都能明确自己和对方的收发能力是正常的, 少一次则无法确认.
+
+第一次client发到server: 
+
+	server确定: client 发送, server 接收 正常
+
+第二次server发到client: 
+
+	client确定: server 发送 接收,  client 发送 接收 正常
+
+第三次client发到server:
+
+	server确定: client 接收, server 发送 正常
+
+
+
+##### 为什么建立连接是三次握手，而关闭连接是四次挥手？
+
+因为服务端在LISTEN状态下，收到建立连接请求的SYN报文后，把ACK(应答)和SYN(同步)放在一个报文里发送给客户端。
+
+而关闭连接时，当服务端收到FIN报文时，仅表示客户端不再发送数据了但是还能接收数据，所以只能先回复一个ACK报文，不能和FIN一起发送, 告诉客户端，"你发的FIN报文我收到了"。只有等到服务端所有的报文都发送完了才能发送FIN报文，因此不能和ACK一起发送。故需要四次挥手。
+
+`MSL`为一个报文段的最大生存时间, 是报文段被丢弃前在网络内的最常时间.
+
+##### ISN (initial sequence number) 不是固定的
+
+建立链接选择初始 seq 时的 ISN 是虽时间而变化的.
+
+##### 半连接队列
+
+服务器收到客户端的SYN后, 会处于SYN_RCVD状态, 未完全建立链接, 服务器会把这种状态的请求放在一个**队列**里, 称之为**半连接队列**.
+
+建立了三次握手后, 会放入**全连接队列**.
+
+当服务器发送完`SYN-ACK`包后, 如果未收到Client的`ACK`包, 服务器会进行重传, 如果还未收到`ACK`会进行第二次重传, 重传时间一般会逐渐增长.  SYN攻击Client在短时间内伪造大量不存在的ip地址, 向Server不断发送SYN包, Server恢复确认包等待Client确认, 而ip不存在, Server需要不断重发知道超时, 这些伪造的SYN包长时间占用未连接队列, 倒是正常的SYN请求因为队列满而被抛弃, 这是一种典型的 Dos/DDoS 攻击,.
+
+##### 为什么释放连接前要等待2MSL
+
+> **MSL**是Maximum Segment Lifetime的英文缩写，可译为“最长报文段寿命”，它是任何报文在网络上存在的最长时间，超过这个时间报文将被丢弃。
+
+为了保证客户端发送的最后一个ACK报文段能够到达服务器。因为这个ACK有可能丢失，从而导致处在LAST-ACK状态的服务器收不到对FIN-ACK的确认报文。服务器会超时重传这个FIN-ACK，接着客户端再重传一次确认，重新启动时间等待计时器。最后客户端和服务器都能正常的关闭。假设客户端不等待2MSL，而是在发送完ACK之后直接释放关闭，一但这个ACK丢失的话，服务器就无法正常的进入关闭连接状态。
+
+- 1个 MSL 保证四次挥手中主动关闭方最后的 ACK 报文能最终到达对端
+- 1个 MSL 保证对端没有收到 ACK 那么进行重传的 FIN 报文能够到达
+
+
+
+##### TCP Receive window size (滑动窗口)
+
+imply put, it is a **TCP receive buffer size for incoming data** that has not been processed yet by the application.
+
+For many applications, since clients tend to receive data rather than send it, clients often have a larger allocated window size. After the handshake, the client sends an HTTP GET request to the server, which is quickly processed. Two response packets from the server arrive at the client, which sends an acknowledgment along with an updated window size. Each TCP header will display the most recent window value, which can grow or shrink as the connection progresses.
+
+
+![TCP Receive Window and TCP buffer](basic.assets/TCP-window-http.png)
+
+**The acknowledgements from the client indicate that the window is shrinking**. As long as the window value does not fall to zero, this behavior will largely go unnoticed by the end user. Although the number is slightly reduced, there is still plenty of room in the buffer for data transfer to continue. In many cases, the client can catch up and will process the data out of the buffer, clearing the window out and increasing the window value.
+
+The TCP header value allocated for the window size is two bytes long. This means that the highest possible numeric value for a receive window is 65,535 bytes. In today’s networks, this window size is not enough to provide optimal traffic flow. 
+
+**To increase TCP receive window exponentially** ,the specific function is called **TCP Window Scaling**, which is advertised in the handshake process. When advertising its window, a client or server will also advertise the scale factor (multiplier) that will be used for the life of the connection.
+
+(Window size scaling factor: 4)
 
 #### 15. **XMLHttpRequest** ✔️
 
@@ -416,7 +592,53 @@ UNSENT, OPENED (open已调用), HEADERS_RECEIVED (send已调用), LOADING (下�
 
 #### 17. **SSR注水脱水** ❌
 
-#### 18. **TCP 和 UDP 的区别** ❌
+#### 18. **TCP 和 UDP 的区别** ✔️
+
+**OSI七层模型**
+
+![OSI七层模型](basic.assets/2019-03-21-01.png)
+
+物理层: 通过光缆, 电缆, 无线电波等方式将设备连接起来组网, 以二进制传输
+
+数据链路层: 根据以太网协议将一组电信号组成一个数据包, 称作'帧', 传输有地址的帧, 错误检测                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
+
+网络层: 建立 主机-主机 的连接, IP选址与路由选择, 为数据包选择路由, IP
+
+传输层: 建立,管理, 维护 端口-端口 的连接  TCP/UDP
+
+会话层: 建立,管理,维护 会话
+
+表示层: 数据格式转化, 数据加密, 代码转换
+
+应用层: 为应用提供服务
+
+**TCP/IP四层模型**
+
+- 应用层：应用层、表示层、会话层：HTTP
+- 传输层：传输层：TCP/UDP
+- 网络层：网络层：IP
+- 数据链路层：数据链路层、物理层
+
+**UDP**:
+
+1. 无连接, 不需要握手, 直接传输, 面向无连接
+
+2. 支持一对多, 多对多, 多对一的传输
+
+3. 不可靠性. 不需要建立连接, 不关注是否正确接收数据. 
+
+4. 即使网络条件不好, 也不会调整发送速率. 但对于实时性要求高的场景(比如电话会议), 就使用UDP而不是TCP.
+
+5. UDP HEADER 开销小, 传输报文高效.
+
+   |              | UDP                                        | TCP                                    |
+   | :----------- | :----------------------------------------- | :------------------------------------- |
+   | 是否连接     | 无连接                                     | 面向连接                               |
+   | 是否可靠     | 不可靠传输，不使用流量控制和拥塞控制       | 可靠传输，使用流量控制和拥塞控制       |
+   | 连接对象个数 | 支持一对一，一对多，多对一和多对多交互通信 | 只能是一对一通信                       |
+   | 传输方式     | 面向报文                                   | 面向字节流                             |
+   | 首部开销     | 首部开销小，仅8字节                        | 首部最小20字节，最大60字节             |
+   | 适用场景     | 适用于实时应用（IP电话、视频会议、直播等） | 适用于要求可靠传输的应用，例如文件传输 |
 
 #### 19. **fiber的作用是什么** ✔️
 
@@ -523,6 +745,45 @@ react使用O(n)启发式算法，提出以下两个假设：
 
 #### 21. **react的优化方法** ❌
 
+#### 21. **优化, 提升页面性能** ✔️
+
+1. 资源压缩, 减少HTTP请求
+2. 非核心代码异步加载
+(script的异步加载有几种方式，区别是什么？)
+<script>标签中的async属性
+异步加载的方式:
+1) 动态脚本加载  2) defer  3) async
+异步加载的区别
+1) defer: HTML解析完后 DOMContentLoaded触发时才执行, 如果有多个, 按照加载的顺序一次执行
+2) async: 异步加载, 不会阻塞, 加载完之后立即执行, 如果有多个, 执行顺序和加载顺序无关
+不加这俩, 加载 JS 会阻塞浏览器，浏览器必须等待 js 加载和执行完毕才能去做其它事情。
+所以, 如果依赖其他js的执行结果或者DOM, 用 defer, 否则用 async.
+
+
+
+**dns预解析:** 
+
+1. HTML源码下载后, 会解析页面包含的链接标签, 提前查询对应域名
+2. 对于访问过的页面, 浏览器会纪录一份域名列表, 当再次打开此页面时, 会在html下载的过程中解析 DNS.
+
+当浏览器遇到类似`href`属性时 (images, css, js..), 自动将`href`的域名解析为IP地址, 解析过程与用户浏览网页并行进行, 为了确保安全, `HTTPS`页面中不会自动解析.
+
+开启`HTTPS`自动解析:
+
+```HTML
+<meta http-equiv="x-dnsprefetch-control" content="on">
+```
+
+一般只需要在整个站点的入口页加上即可.
+
+手动解析某域名: 
+
+```html
+<link rel="dns-prefetch" href="//img.alicdn.com">
+```
+
+
+
 #### 22. **性能优化  react和webpack** ❌
 #### 23. **plugin和loader** ❌
 
@@ -538,24 +799,6 @@ react使用O(n)启发式算法，提出以下两个假设：
 5. 浏览器解析和渲染页面
 6. 连接结束四次挥手 -> 为什么三次不可以
 
-```sequence
-Title: TCP握手
-
-Note left of 客户端:
-Note left of 客户端: 发送 Syn 请求建立连接,\ninitial Seq num x
-
-客户端 -> 服务端: Syn=1, Seq=x 
-Note right of 服务端: choose init Seq y\n发送 Syn+ACK 报文(Syn=1),\nACK=x+1表示确认收到
-服务端 -> 客户端: Syn=1, ACK=x+1, Seq=y
-Note left of 客户端: 收到ACK=x+1表示服务已上线,\n发送ACK以响应Syn,\n这段可能携带传给客户端的数据
-客户端 -> 服务端: ACK=y+1
-Note right of 服务端: 收到ACK=y+1表示客户端已上线
-
-```
-
-##### 为什么建立连接是三次握手，而关闭连接是四次挥手？
-
-> 因为服务端在LISTEN状态下，收到建立连接请求的SYN报文后，把ACK和SYN放在一个报文里发送给客户端。而关闭连接时，当收到对方的FIN报文时，仅仅表示对方不再发送数据了但是还能接收数据，己方是否现在关闭发送数据通道，需要上层应用来决定，因此，己方ACK和FIN一般都会分开发送。
 
 ##### 旧版:
 
@@ -584,7 +827,9 @@ URL格式: `scheme://host.domain:port/path/filename`
 浏览器开始解析文件，如果是 gzip 格式的话会先解压一下，然后通过文件的编码格式知道该如何去解码文件
 
 5. 浏览器解析渲染页面
+
 #### 浏览器渲染过程
+
 1. 将HTML自上而下解析成DOM tree。
 2. 当遇到style或link的css文件，浏览器会开启一个异步的线程去下载和CSS解析成 CSSOM tree，该线程会阻塞js线程的执行，但不会阻塞html线程的解析。
 2. 遇到 script 标签的话，会判断是否存在 async 或者 defer ，
@@ -641,14 +886,9 @@ new webpack.optimize.CommonsChunkPlugin({
 
 #### 29. CSRF 和 XSS
 
-#### 30. Promise再扫一眼. 有什么缺点? Promise.race
+#### 30. Promise再扫一眼. 有什么缺点? Promise.race ✔️
 
 缺点: Promise 功能太少了。
-
-##### 没有 Deferred
-
-[Deferred](http://api.jquery.com/category/deferred-object/) 可以在创建 Promise 时可以减少一层嵌套，还有就是跨方法使用时很方便。
-ECMAScript 11 年就有过 [Deferred 提案](http://wiki.ecmascript.org/doku.php?id=strawman:deferred_functions)，但后来没被接受。其实用 Promise 不到十行代码就能实现 Deferred：[es6-deferred](https://github.com/seangenabe/es6-deferred/blob/master/deferred.js)。现在有了 async/await，generator/yield 后，deferred 就没有使用价值了。
 
 ##### 没有获取状态方法：isRejected，isResolved
 
@@ -664,9 +904,51 @@ Fetch 和 Promise 一样，一旦发起，不能中断，也不会超时，只�
 
 #### 31. Generator
 
-#### 32. EventLoop
+#### 32. EventLoop ✔️
 
-#### 33. 柯里化
+* macro task: `Script`, `setTimeout`, `setInterval`, `setImmediate`, `I/O`, UI rendering
+* micro task: `process.nextTick`, `Promise.then`
+
+#### 33. 柯里化 ✔️
+
+```js
+function add(...args) {
+  const innerAdd = function (...innerArgs) {
+    args.push(...innerArgs);
+    return innerAdd;
+  }
+  innerAdd.toString = () => args.reduce((a, b) => a + b);
+  return innerAdd;
+}
+```
+
+
+
+#### 34. 进程和线程的区别 ✔️
+
+**进程是资源分配的最小单位，线程是CPU调度的最小单位**
+
+进程时间段
+= CPU加载程序上下文的时间
+\+ CPU执行时间
+\+ CPU保存程序上下文的时间 （实质就是一个程序开始运行到运行结束的时间，针对一个程序只创建了一个进程的情况）
+
+（注意：一个程序可能创建多个进程，这时候一个进程的结束不代表程序运行结束）
+
+**切换进程上下文的成本更高, 一个进程执行时中间切分为多个线程. **
+
+线程时间段
+= CPU加载线程上下文的时间
+\+ CPU执行时间
+\+ CPU保存线程上下文的时间 （是更为细小的时间段，远小于进程时间段）
+
+**线程是共享了进程的上下文环境，的更为细小的CPU时间段。线程主要共享的是进程的地址空间。**
+
+
+
+
+
+#### 34. 迁移TS的时候遇到了哪些问题
 
 #### 快排
 
@@ -688,6 +970,42 @@ Fetch 和 Promise 一样，一旦发起，不能中断，也不会超时，只�
 1.做过什么。介绍个人履历。把自己曾经做过的事情说清楚，对应时间节点的工作单位、工作地点、工作岗位、担任职务、工作内容等，尤其是对最近几年做过的事情要重点来说。较早之前的工作经验，或者学习的经验可以一带而过，要把握“重点突出”的原则。
 
 #### 35. 项目具体介绍
+
+
+
+#### 36.简历修改, 附面向SEO报菜名
+
+<div ><p>我整理一下近年来流行的套路。首先是面向关键词 SEO 报菜名：</p>
+<ul>
+<li>本人年轻时就用 Vue + Vue Router + Vuex + ElementUI 做过 XX 管理后台 A。</li>
+<li>本人年轻时也用 React + Redux + Antd 做过 XX 管理后台 B。</li>
+<li>本人年轻时还用 jQuery + Bootstrap + RequireJS 做过 XX 首页 C。</li>
+</ul>
+
+<p>然后要体现做题家气质：</p>
+<ul>
+<li>熟悉 JS 底层原理（<i>指背过 == 比较结果之类的犄角旮旯语言特性</i>）</li>
+<li>熟悉浏览器底层原理（<i>指对那道「从输入网址到展示页面发生了什么」的题对答如流</i>）</li>
+<li>熟悉数据结构和算法（<i>指偷偷刷过 LeetCode Easy</i>）</li>
+<li>熟悉计算机网络（<i>指能秒答 HTTP 状态码，还能接着告诉你 TCP 和 UDP 的区别</i>）</li>
+<li>熟悉 Linux 系统（<i>指 mkdir 和 sudo rm -rf</i>）</li>
+<li>熟悉前端工程化（<i>指抄 webpack 和 babel 配置来用</i>）</li>
+<li>熟悉性能优化（<i>指把前端优化 24 条建议和 35 条军规等博客背得滚瓜烂熟</i>）</li>
+<li>熟悉源代码管理工具（<i>指实在不行就 git push -f</i>）</li>
+<li>熟悉函数式编程思维（<i>指会用 reduce 代替 for 循环求数组最大值</i>）</li></ul>
+
+<p>最后展示一下技术沉淀，升华一下政治正确：</p>
+<ul>
+<li>性格严谨，制定过团队技术规范（<i>指配置全家桶</i>）</li>
+<li>富有热情，持续关注技术热点（<i>指朋友圈转发前端营销号推送</i>）</li>
+<li>热爱编程，希望长期深入前端技术（<i>指没有用过 JavaScript 以外的编程语言</i>）</li>
+<li>认真负责，具有一定的管理能力（<i>指带过实习生和外包</i>）</li>
+<li>阳光开朗，能融入团队（<i>指破冰之类羞羞的事情都没有关系啦</i>）</li>
+<li>勤奋皮实，抗压能力强（<i>指什么不用说了吧</i>）</li>
+</ul>
+
+<p>暗号都对上了，还怕面试不通过吗？</p></div>
+
 
 
 
